@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>球面ディスプレイ画面</title>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+		<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+		<script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+		<script src="/socket.io/socket.io.js"></script>
+	</head>
+	<body>
+		<div id="main">
+  	<script>
+		var __extends = this.__extends || function (d, b) {
+			for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+			function __() { this.constructor = d; }
+			__.prototype = b.prototype;
+			d.prototype = new __();
+		};
+
+		// Socket.IOを使って接続
+		var socket = io.connect(location.origin);
+
+		var label;
+		var roomID;
+		$(function () {
+			// ルームID(1234)を作成
+			roomID = 1234;
+
+			// roomIDに入室
+			socket.emit("pairingFromMain", {
+				"roomID": roomID
+			});
+
+			// サーバーからsuccessPairingというデータを受信
+			socket.on("successPairing", function(){
+				//
+			});
+			// サーバーからresChatというデータを受信
+
+//D3の描画はここから
+			var width = 1000;
+			var height = 800;
+//			var array = [chatLogs0, chatLogs1, chatLogs2, chatLogs3, chatLogs4, chatLogs5, chatLogs6, chatLogs7, chatLogs8, chatLogs9, chatLogs10, chatLogs11];
+	    var i = 0;
+			var nodes = [
+					{id:0},
+					{id:1},
+					{id:2},
+					{id:3},
+					{id:4},
+					{id:5},
+					{id:6},
+					{id:7},
+					{id:8},
+					{id:9},
+					{id:10},
+					{id:11},
+			];
+
+		/*	var nodesdata = [];
+for(var i = 0; i < 12; i++){
+			var nodesdata = [
+			 label:array[i]
+		 			  ];
+					}
+*/
+
+			var links = [
+					{source:0, target:1},
+					{source:0, target:2},
+					{source:0, target:3},
+					{source:1, target:2},
+					{source:3, target:1},
+					{source:2, target:3},
+					{source:4, target:5},
+					{source:4, target:6},
+					{source:4, target:7},
+					{source:5, target:6},
+					{source:7, target:5},
+					{source:6, target:7},
+					{source:8, target:9},
+					{source:8, target:10},
+					{source:8, target:11},
+					{source:9, target:10},
+					{source:11, target:9},
+					{source:10, target:11},
+			];
+
+				var force = d3.layout.force()
+						.nodes(nodes)
+						.links(links)
+						.size([width, height])
+						.distance(150) // node同士の距離
+						.charge(-1000)
+						.start();
+
+			 var svg = d3.select("body")
+						.append("svg")
+						.attr({width:width, height:height});
+
+				var link = svg.selectAll("line")
+						.data(links)
+						.enter()
+						.append("line")
+						.style({stroke: "#ccc",
+						"stroke-width": 1.0
+				});
+
+				var node = svg.selectAll("circle")
+						.data(nodes)
+						.enter()
+						.append("circle")
+						.attr("r", 48)
+						.style({
+								fill: "grey"
+						})
+						.call(force.drag);
+
+						var nodesdata = [
+						 {label:document.getElementById('chatLogs0')},
+						 {label:document.getElementById('chatLogs1')},
+						 {label:document.getElementById('chatLogs2')},
+						 {label:document.getElementById('chatLogs3')},
+						 {label:document.getElementById('chatLogs4')},
+						 {label:document.getElementById('chatLogs5')},
+						 {label:document.getElementById('chatLogs6')},
+						 {label:document.getElementById('chatLogs7')},
+						 {label:document.getElementById('chatLogs8')},
+						 {label:document.getElementById('chatLogs9')},
+						 {label:document.getElementById('chatLogs10')},
+						 {label:document.getElementById('chatLogs11')},
+						];
+				// nodeのラベル周りの設定
+				var label = svg.selectAll('text')
+						.data(nodesdata)
+						.enter()
+						.append('text')
+						.attr({
+								"text-anchor":"middle",
+								"fill":"white",
+								"font-size": "18px"
+						})
+						.text(function(data) {
+						//user1
+
+						socket.on("resChat", function (data) {
+								 $("#chatLogs0").append("<div>" + data.label + "</div>");
+							});
+						socket.on("resChat1", function (data) {
+								 $("#chatLogs1").append("<div>" + data.label + "</div>");
+							});
+					  socket.on("resChat2", function (data) {
+								 $("#chatLogs2").append("<div>" + data.label + "</div>");
+							});
+						socket.on("resChat3", function (data) {
+								 $("#chatLogs3").append("<label>" + data.label + "</label>");
+							});
+						//user2
+						socket.on("resChat0-2", function (data) {
+								 $("#chatLogs4").append("<div>" + data.label + "</div>");
+							});
+					  socket.on("resChat4", function (data) {
+								 $("#chatLogs5").append("<div>" + data.label + "</div>");
+							});
+					  socket.on("resChat5", function (data) {
+								 $("#chatLogs6").append("<div>" + data.label + "</div>");
+							});
+						socket.on("resChat6", function (data) {
+								 $("#chatLogs7").append("<div>" + data.label + "</div>");
+							});
+						//user3
+						socket.on("resChat0-3", function (data) {
+								 $("#chatLogs8").append("<div>" + data.label + "</div>");
+							});
+					  socket.on("resChat7", function (data) {
+								label : $("#chatLogs9").append("<div>" + data.label + "</div>");
+							});
+						socket.on("resChat8", function (data) {
+								 $("#chatLogs10").append("<div>" + data.label + "</div>");
+							});
+						socket.on("resChat9", function (data) {
+								 $("#chatLogs11").append("<div>" + data.label + "</div>");
+							});
+
+return data.label; });
+
+				// tickイベント(力学計算が起こるたびに呼ばれるらしいので、座標追従などはここで)
+				force.on("tick", function() {
+						link.attr({
+								x1: function(data) { return data.source.x;},
+								y1: function(data) { return data.source.y;},
+								x2: function(data) { return data.target.x;},
+								y2: function(data) { return data.target.y;}
+						});
+						node.attr({
+								cx: function(data) { return data.x;},
+								cy: function(data) { return data.y;}
+						});
+						label.attr({
+								x: function(data) { return data.x;},
+								y: function(data) { return data.y;}
+						});
+				});
+						});
+
+		</script>
+
+
+		</div>
+	</body>
+</html>
