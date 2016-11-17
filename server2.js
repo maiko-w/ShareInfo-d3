@@ -4,6 +4,12 @@ var http = require("http");
 var fs = require("fs");
 // pathモジュールの読み込み
 var path = require("path");
+// socket.ioモジュールの読み込み
+var socketIO = require("socket.io");
+
+
+
+
 // httpサーバーを立てる
 var server = http.createServer(requestListener);
 // httpサーバーを起動する。
@@ -11,43 +17,30 @@ server.listen((process.env.PORT || 5000), function() {
     console.log((process.env.PORT || 5000) + "でサーバーが起動しました");
 });
 
-var displayClient = {}
-var formClinet = {}
+//初期値をセットする。
 var nodes = [{
-    id: 0,
     label: "ID:0"
 }, {
-    id: 1,
     label: "ID:1"
 }, {
-    id: 2,
     label: "ID:2"
 }, {
-    id: 3,
     label: "ID:3"
 }, {
-    id: 4,
     label: "ID:4"
 }, {
-    id: 5,
     label: "ID:5"
 }, {
-    id: 6,
     label: "ID:6"
 }, {
-    id: 7,
     label: "ID:7"
 }, {
-    id: 8,
     label: "ID:8"
 }, {
-    id: 9,
     label: "ID:9"
 }, {
-    id: 10,
     label: "ID:10"
 }, {
-    id: 11,
     label: "ID:11"
 }, ];
 
@@ -108,12 +101,8 @@ var links = [{
 }, ];
 
 
+//初期値ここまで
 
-function sendNodesToDisplay(client) {
-    //ディスプレイにnodesを送る用の関数
-    client.emit('init', nodes);
-
-}
 /**
  * サーバーにリクエストがあった際に実行される関数
  */
@@ -182,10 +171,11 @@ function readFileHandler(fileName, contentType, isBinary, response) {
     });
 }
 
-// socket.ioの読み込み
-var socketIO = require("socket.io");
 // サーバーでSocket.IOを使える状態にする
 var io = socketIO.listen(server);
+
+//roomID。今回は一つに決定される。
+var roomID = "";
 
 // サーバーへのアクセスを監視。クライアントからのアクセスがあったらコールバックが実行
 io.sockets.on("connection", function(socket) {
@@ -202,49 +192,59 @@ io.sockets.on("connection", function(socket) {
         // ルームIDがroomIDのグループにsuccessPairingというデータを送信
         io.sockets.to(roomID).emit("successPairing");
     });
-    //controller.jsからreschat：受信
+    //controllerからのデータを受信する。
     socket.on("testChat", function(data) {
-        socket.to(roomID).broadcast.emit("resChat", data);
-    });
-    socket.on("testChat1", function(data) {
-        socket.to(roomID).broadcast.emit("resChat1", data);
-    });
-    socket.on("testChat2", function(data) {
-        socket.to(roomID).broadcast.emit("resChat2", data);
-    });
-    socket.on("testChat3", function(data) {
-        socket.to(roomID).broadcast.emit("resChat3", data);
-    });
-    socket.on("testChat0-2", function(data) {
-        socket.to(roomID).broadcast.emit("resChat0-2", data);
-    });
-    socket.on("testChat4", function(data) {
-        socket.to(roomID).broadcast.emit("resChat4", data);
-    });
-    socket.on("testChat5", function(data) {
-        socket.to(roomID).broadcast.emit("resChat5", data);
-    });
-    socket.on("testChat6", function(data) {
-        socket.to(roomID).broadcast.emit("resChat6", data);
-    });
-    socket.on("testChat0-3", function(data) {
-        socket.to(roomID).broadcast.emit("resChat0-3", data);
-    });
-    socket.on("testChat7", function(data) {
-        socket.to(roomID).broadcast.emit("resChat7", data);
-    });
-    socket.on("testChat8", function(data) {
-        socket.to(roomID).broadcast.emit("resChat8", data);
-    });
-    socket.on("testChat9", function(data) {
-        socket.to(roomID).broadcast.emit("resChat9", data);
-    });
+        /**こんなのがデータに入ってます。
+         * data = {
+                name: username,
+                vals: [
+                    val1, val2, val3
+                ]
+            }   
+         * 
+         * 
+         */
+
+        //まずnodeを作成する。
+
+        //ユーザーの名前のノード
+        nodes.push({
+            label: data.name
+        });
+
+        //属性のノードの数だけプッシュする。
+        for (val of data.vals) {
+            nodes.push({
+                label: val
+            });
+        }
+
+        //つぎにlinkを作成する。
+        //これは今追加したユーザーのIDのnodeIDのはず。
+        var thisUserNodeId = nodes.length - data.vals.length - 1;
+
+        for (num in data.vals) {
+            //numにはdata.valsの番目が入る。
+            var thisValNodeId = Number(thisUserNodeId) + Number(num) + 1;
+
+            links.push({
+                source: thisUserNodeId,
+                target: thisValNodeId
+            });
+        }
 
 
+        console.log(nodes);
+        console.log(links);
+        //socket.to(roomID).broadcast.emit("resChat", data);
+        var sendData = {
+            "nodes": nodes,
+            "links": links
+        };
+        socket.to(roomID).broadcast.emit("display-response", sendData);
+    });
 
     //ここからやすにゃんが書いた
-
-
     socket.on("display-request", function(data) {
 
         //送信するデータを作成する。
@@ -253,10 +253,13 @@ io.sockets.on("connection", function(socket) {
             "nodes": nodes,
             "links": links
         };
+        console.log(nodes);
         //"display-request"イベントが飛んできたら
+        //"display-response"イベントでデータを飛ばす。
         socket.emit("display-response", sendData);
 
     });
+
 
 
 });
