@@ -8,7 +8,8 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+	<!-- <script src="/socket.io/socket.io.js"></script> -->
 </head>
 
 <body>
@@ -52,27 +53,27 @@
 
 
             var mainFunc = function(nodes, links) {
-                // ルームID(1234)を作成
-                roomID = 1234;
+                    // ルームID(1234)を作成
+                    roomID = 1234;
 
-                // roomIDに入室
-                socket.emit("pairingFromMain", {
-                    "roomID": roomID
-                });
+                    // roomIDに入室
+                    socket.emit("pairingFromMain", {
+                        "roomID": roomID
+                    });
 
-                // サーバーからsuccessPairingというデータを受信
-                socket.on("successPairing", function() {
-                    //
-                });
-                // サーバーからresChatというデータを受信
+                    // サーバーからsuccessPairingというデータを受信
+                    socket.on("successPairing", function() {
+                        //
+                    });
+                    // サーバーからresChatというデータを受信
 
-                //D3の描画はここから
-                var width = 1000;
-                var height = 800;
-                //			var array = [chatLogs0, chatLogs1, chatLogs2, chatLogs3, chatLogs4, chatLogs5, chatLogs6, chatLogs7, chatLogs8, chatLogs9, chatLogs10, chatLogs11];
-                var i = 0;
+                    //D3の描画はここから
+                    var width = 1000;
+                    var height = 800;
+                    //			var array = [chatLogs0, chatLogs1, chatLogs2, chatLogs3, chatLogs4, chatLogs5, chatLogs6, chatLogs7, chatLogs8, chatLogs9, chatLogs10, chatLogs11];
+                    var i = 0;
 
-                /*
+                    /*
                 var nodes = [{
                     id: 0
                 }, {
@@ -99,9 +100,9 @@
                     id: 11
                 }, ];
 				*/
-                //nodesは引数として受ける。
+                    //nodesは引数として受ける。
 
-                /*	var nodesdata = [];
+                    /*	var nodesdata = [];
 for(var i = 0; i < 12; i++){
 			var nodesdata = [
 			 label:array[i]
@@ -109,9 +110,9 @@ for(var i = 0; i < 12; i++){
 					}
 */
 
-                //linksも引数として受け取る。
+                    //linksも引数として受け取る。
 
-                /*
+                    /*
                 var links = [{
                     source: 0,
                     target: 1
@@ -170,40 +171,40 @@ for(var i = 0; i < 12; i++){
 
 				*/
 
-                var force = d3.layout.force()
-                    .nodes(nodes)
-                    .links(links)
-                    .size([width, height])
-                    .distance(150) // node同士の距離
-                    .charge(-1000)
-                    .start();
+                    var force = d3.layout.force()
+                        .nodes(nodes)
+                        .links(links)
+                        .size([width, height])
+                        .distance(150) // node同士の距離
+                        .charge(-1000)
+                        .start();
 
-                var svg = d3.select("body")
-                    .append("svg")
-                    .attr({
-                        width: width,
-                        height: height
-                    });
+                    var svg = d3.select("body")
+                        .append("svg")
+                        .attr({
+                            width: width,
+                            height: height
+                        });
 
-                var link = svg.selectAll("line")
-                    .data(links)
-                    .enter()
-                    .append("line")
-                    .style({
-                        stroke: "#ccc",
-                        "stroke-width": 1.0
-                    });
+                    var link = svg.selectAll("line")
+                        .data(links)
+                        .enter()
+                        .append("line")
+                        .style({
+                            stroke: "#ccc",
+                            "stroke-width": 1.0
+                        });
 
-                var node = svg.selectAll("circle")
-                    .data(nodes)
-                    .enter()
-                    .append("circle")
-                    .attr("r", 48)
-                    .style({
-                        fill: "grey"
-                    })
-                    .call(force.drag);
-                /*
+                    var node = svg.selectAll("circle")
+                        .data(nodes)
+                        .enter()
+                        .append("circle")
+                        .attr("r", 48)
+                        .style({
+                            fill: "grey"
+                        })
+                        .call(force.drag);
+                    /*
                 var nodesdata = [{
                     label: document.getElementById('chatLogs0')
                 }, {
@@ -231,96 +232,96 @@ for(var i = 0; i < 12; i++){
                 }, ];
 
 				*/
-                // nodeのラベル周りの設定
-                var label = svg.selectAll('text')
-                    .data(nodes)
-                    .enter()
-                    .append('text')
-                    .attr({
-                        "text-anchor": "middle",
-                        "fill": "white",
-                        "font-size": "18px"
-                    })
-                    .text(function(data) {
-                        //user1
+                    // nodeのラベル周りの設定
+                    var label = svg.selectAll('text')
+                        .data(nodes)
+                        .enter()
+                        .append('text')
+                        .attr({
+                            "text-anchor": "middle",
+                            "fill": "white",
+                            "font-size": "18px"
+                        })
+                        .text(function(data) {
+                            //user1
 
-                        socket.on("resChat", function(data) {
-                            $("#chatLogs0").append("<div>" + data.label + "</div>");
-                        });
-                        socket.on("resChat1", function(data) {
-                            $("#chatLogs1").append("<div>" + data.label + "</div>");
-                        });
-                        socket.on("resChat2", function(data) {
-                            $("#chatLogs2").append("<div>" + data.label + "</div>");
-                        });
-                        socket.on("resChat3", function(data) {
-                            $("#chatLogs3").append("<label>" + data.label + "</label>");
-                        });
-                        //user2
-                        socket.on("resChat0-2", function(data) {
-                            $("#chatLogs4").append("<div>" + data.label + "</div>");
-                        });
-                        socket.on("resChat4", function(data) {
-                            $("#chatLogs5").append("<div>" + data.label + "</div>");
-                        });
-                        socket.on("resChat5", function(data) {
-                            $("#chatLogs6").append("<div>" + data.label + "</div>");
-                        });
-                        socket.on("resChat6", function(data) {
-                            $("#chatLogs7").append("<div>" + data.label + "</div>");
-                        });
-                        //user3
-                        socket.on("resChat0-3", function(data) {
-                            $("#chatLogs8").append("<div>" + data.label + "</div>");
-                        });
-                        socket.on("resChat7", function(data) {
-                            label: $("#chatLogs9").append("<div>" + data.label + "</div>");
-                        });
-                        socket.on("resChat8", function(data) {
-                            $("#chatLogs10").append("<div>" + data.label + "</div>");
-                        });
-                        socket.on("resChat9", function(data) {
-                            $("#chatLogs11").append("<div>" + data.label + "</div>");
+                            socket.on("resChat", function(data) {
+                                $("#chatLogs0").append("<div>" + data.label + "</div>");
+                            });
+                            socket.on("resChat1", function(data) {
+                                $("#chatLogs1").append("<div>" + data.label + "</div>");
+                            });
+                            socket.on("resChat2", function(data) {
+                                $("#chatLogs2").append("<div>" + data.label + "</div>");
+                            });
+                            socket.on("resChat3", function(data) {
+                                $("#chatLogs3").append("<label>" + data.label + "</label>");
+                            });
+                            //user2
+                            socket.on("resChat0-2", function(data) {
+                                $("#chatLogs4").append("<div>" + data.label + "</div>");
+                            });
+                            socket.on("resChat4", function(data) {
+                                $("#chatLogs5").append("<div>" + data.label + "</div>");
+                            });
+                            socket.on("resChat5", function(data) {
+                                $("#chatLogs6").append("<div>" + data.label + "</div>");
+                            });
+                            socket.on("resChat6", function(data) {
+                                $("#chatLogs7").append("<div>" + data.label + "</div>");
+                            });
+                            //user3
+                            socket.on("resChat0-3", function(data) {
+                                $("#chatLogs8").append("<div>" + data.label + "</div>");
+                            });
+                            socket.on("resChat7", function(data) {
+                                label: $("#chatLogs9").append("<div>" + data.label + "</div>");
+                            });
+                            socket.on("resChat8", function(data) {
+                                $("#chatLogs10").append("<div>" + data.label + "</div>");
+                            });
+                            socket.on("resChat9", function(data) {
+                                $("#chatLogs11").append("<div>" + data.label + "</div>");
+                            });
+
+                            return data.label;
                         });
 
-                        return data.label;
+                    // tickイベント(力学計算が起こるたびに呼ばれるらしいので、座標追従などはここで)
+                    force.on("tick", function() {
+                        link.attr({
+                            x1: function(data) {
+                                return data.source.x;
+                            },
+                            y1: function(data) {
+                                return data.source.y;
+                            },
+                            x2: function(data) {
+                                return data.target.x;
+                            },
+                            y2: function(data) {
+                                return data.target.y;
+                            }
+                        });
+                        node.attr({
+                            cx: function(data) {
+                                return data.x;
+                            },
+                            cy: function(data) {
+                                return data.y;
+                            }
+                        });
+                        label.attr({
+                            x: function(data) {
+                                return data.x;
+                            },
+                            y: function(data) {
+                                return data.y;
+                            }
+                        });
                     });
-
-                // tickイベント(力学計算が起こるたびに呼ばれるらしいので、座標追従などはここで)
-                force.on("tick", function() {
-                    link.attr({
-                        x1: function(data) {
-                            return data.source.x;
-                        },
-                        y1: function(data) {
-                            return data.source.y;
-                        },
-                        x2: function(data) {
-                            return data.target.x;
-                        },
-                        y2: function(data) {
-                            return data.target.y;
-                        }
-                    });
-                    node.attr({
-                        cx: function(data) {
-                            return data.x;
-                        },
-                        cy: function(data) {
-                            return data.y;
-                        }
-                    });
-                    label.attr({
-                        x: function(data) {
-                            return data.x;
-                        },
-                        y: function(data) {
-                            return data.y;
-                        }
-                    });
-                });
-            }
-            $(mainFunc());
+                }
+                //$(mainFunc());
         </script>
 
 
